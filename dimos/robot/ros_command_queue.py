@@ -183,10 +183,29 @@ class ROSCommandQueue:
                 
                 # Allow time for the robot to process the command
                 start_time = time.time()
-                stabilization_delay = 0.5  # Half-second delay for stabilization
-                time.sleep(stabilization_delay)
                 
-                # Wait for the robot to complete the command (timeout check)
+                # First, wait for the robot to START executing (become busy)
+                # Give it 2 seconds to start, otherwise assume it's a quick command
+                wait_for_busy_timeout = 2.0
+                became_busy = False
+                while not self._is_busy_func() and (time.time() - start_time) < wait_for_busy_timeout:
+                    time.sleep(0.05)
+                    if self._is_busy_func():
+                        became_busy = True
+                        if self._debug:
+                            logger.debug(f"[WebRTC Queue] Robot became BUSY for API ID {api_id}")
+                        break
+                
+                if not became_busy:
+                    # Command might be instant or already completed
+                    if self._debug:
+                        logger.debug(f"[WebRTC Queue] API ID {api_id} completed instantly (no BUSY state detected)")
+                    # Give it a small delay for any side effects to settle
+                    time.sleep(0.5)
+                    logger.info(f"WebRTC request completed: {api_id} (ID: {request_id})")
+                    return True
+                
+                # Now wait for the robot to FINISH executing (become idle again)
                 while self._is_busy_func() and (time.time() - start_time) < timeout:
                     if self._debug and (time.time() - start_time) % 5 < 0.1:  # Print every ~5 seconds
                         logger.debug(f"[WebRTC Queue] Still waiting on API ID {api_id} - elapsed: {time.time()-start_time:.1f}s")
