@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from go2_interfaces.msg import Go2State, IMU
-from unitree_go.msg import WebRtcReq
+from go2_interfaces.msg import Go2State, IMU, WebRtcReq
 from enum import Enum, auto
 import threading
 import time
