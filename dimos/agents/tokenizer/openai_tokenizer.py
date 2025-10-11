@@ -25,6 +25,11 @@ class OpenAITokenizer(AbstractTokenizer):
         self.model_name = model_name
         try:
             self.tokenizer = tiktoken.encoding_for_model(self.model_name)
+        except KeyError:
+            # Fallback for non-OpenAI models (Ollama, local models, etc.)
+            # Use cl100k_base (GPT-4 encoding) as reasonable approximation
+            # TODO: Replace with proper tokenizer mapping (see Issue #14)
+            self.tokenizer = tiktoken.get_encoding('cl100k_base')
         except Exception as e:
             raise ValueError(
                 f"Failed to initialize tokenizer for model {self.model_name}. Error: {str(e)}"
