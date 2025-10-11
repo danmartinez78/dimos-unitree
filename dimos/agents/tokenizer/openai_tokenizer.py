@@ -25,6 +25,15 @@ class OpenAITokenizer(AbstractTokenizer):
         self.model_name = model_name
         try:
             self.tokenizer = tiktoken.encoding_for_model(self.model_name)
+        except KeyError:
+            # Fallback for non-OpenAI models (e.g., Ollama models)
+            # Use cl100k_base as a reasonable approximation
+            logger = setup_logger("dimos.agents.tokenizer.openai")
+            logger.warning(
+                f"Model '{self.model_name}' not recognized by tiktoken. "
+                f"Falling back to 'cl100k_base' encoding for approximate token counts."
+            )
+            self.tokenizer = tiktoken.get_encoding('cl100k_base')
         except Exception as e:
             raise ValueError(
                 f"Failed to initialize tokenizer for model {self.model_name}. Error: {str(e)}"
