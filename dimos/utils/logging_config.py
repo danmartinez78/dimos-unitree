@@ -22,6 +22,10 @@ import logging
 import colorlog
 from typing import Optional
 
+# Module-level logger for internal error handling
+# This avoids creating logger overhead inside exception handlers
+_module_logger = logging.getLogger(__name__)
+
 
 def setup_logger(
     name: str, 
@@ -79,7 +83,7 @@ def setup_logger(
 
         return logger
     except Exception as e:
-        logging.error(f"Failed to set up logger: {e}")
+        _module_logger.error(f"Failed to set up logger: {e}")
         raise
 
 
