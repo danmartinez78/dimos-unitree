@@ -30,7 +30,7 @@ logger = setup_logger("dimos.agents.planning_agent")
 # For response validation
 class PlanningAgentResponse(BaseModel):
     type: Literal["dialogue", "plan"]
-    content: List[str]
+    content: Union[str, List[str]]  # Accept both string and list for flexibility
     needs_confirmation: bool
 
 class PlanningAgent(OpenAIAgent):
@@ -300,9 +300,17 @@ class PlanningAgent(OpenAIAgent):
         def extract_content(response) -> List[str]:
             if isinstance(response, PlanningAgentResponse):
                 if response.type == "plan":
-                    return response.content  # List of steps to be emitted individually
+                    # content must be a list for plans
+                    if isinstance(response.content, list):
+                        return response.content
+                    else:
+                        return [response.content]  # Shouldn't happen but handle it
                 else:  # dialogue type
-                    return [response.content]  # Wrap single dialogue message in a list
+                    # content can be string or list for dialogue
+                    if isinstance(response.content, list):
+                        return response.content
+                    else:
+                        return [response.content]  # Wrap single dialogue message in a list
             else:
                 return [str(response)]  # Wrap non-PlanningAgentResponse in a list
 
