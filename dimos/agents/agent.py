@@ -899,14 +899,14 @@ class OpenAIAgent(LLMAgent):
             tool_choice_param = NOT_GIVEN
             if self.skill_library is not None:
                 tool_choice_param = "auto"
-                logger.info(f"🔧 tool_choice set to: {tool_choice_param}, skill_library has {len(self.skill_library.get_tools())} tools")
+                logger.debug(f"tool_choice set to: {tool_choice_param}, skill_library has {len(self.skill_library.get_tools())} tools")
             else:
-                logger.info("⚠️ skill_library is None, tool_choice will be NOT_GIVEN")
+                logger.debug("skill_library is None, tool_choice will be NOT_GIVEN")
 
             # Use temperature=0 for deterministic, focused responses
             # This is especially important for robot control where consistency matters
             temperature_param = 0.0
-            logger.info(f"🌡️  temperature set to: {temperature_param}")
+            logger.debug(f"temperature set to: {temperature_param}")
 
             if self.response_model is not NOT_GIVEN:
                 response = self.client.beta.chat.completions.parse(
