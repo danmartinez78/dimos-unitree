@@ -817,12 +817,25 @@ class OpenAIAgent(LLMAgent):
             ValueError: If the messages or other parameters are invalid.
         """
         try:
+            # Set tool_choice to "auto" when skills are available
+            # This forces the LLM to use the tool calling API instead of
+            # returning function calls as text in the content field
+            tool_choice_param = NOT_GIVEN
+            if self.skill_library is not None:
+                tool_choice_param = "auto"
+            
+            # Use temperature=0 for deterministic, focused responses
+            # This is especially important for robot control where consistency matters
+            temperature_param = 0.0
+            
             if self.response_model is not NOT_GIVEN:
                 response = self.client.beta.chat.completions.parse(
                     model=self.model_name,
                     messages=messages,
                     response_format=self.response_model,
                     tools=(self.skill_library.get_tools() if self.skill_library is not None else NOT_GIVEN),
+                    tool_choice=tool_choice_param,
+                    temperature=temperature_param,
                     max_tokens=self.max_output_tokens_per_request,
                 )
             else:
@@ -832,6 +845,8 @@ class OpenAIAgent(LLMAgent):
                     max_tokens=self.max_output_tokens_per_request,
                     tools=(self.skill_library.get_tools()
                            if self.skill_library is not None else NOT_GIVEN),
+                    tool_choice=tool_choice_param,
+                    temperature=temperature_param,
                 )
             response_message = response.choices[0].message
             if response_message is None:
