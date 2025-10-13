@@ -453,7 +453,23 @@ performing_agent = OpenAIAgent(
 
 ## Documentation
 
-For detailed documentation, please visit our [documentation site](#) (Coming Soon).
+📚 **[Complete Documentation](docs/README.md)** - Comprehensive guides and API reference
+
+### Quick Links
+
+- **Getting Started**
+  - [Agent-to-Robot Integration](docs/guides/integration.md) - Complete pipeline from natural language to robot actions
+  - [Skills Extension](docs/guides/skills.md) - Creating custom skills
+  - [Observable Streams](docs/guides/observables.md) - RxPY patterns and data flow
+
+- **Advanced Features**
+  - [Semantic Memory & RAG](docs/guides/memory.md) - Spatial reasoning and retrieval
+  - [Perception & Vision](docs/guides/perception.md) - Vision pipelines and VLM integration
+  - [Robot Platform Abstraction](docs/guides/robot-platforms.md) - Adapting DIMOS to new robots
+
+- **API Reference**
+  - [Agents API](docs/api/agents.md) - OpenAIAgent, PlanningAgent, ClaudeAgent
+  - [Skills API](docs/api/skills.md) - AbstractSkill, SkillLibrary, built-in skills
 
 ## Contributing
 
