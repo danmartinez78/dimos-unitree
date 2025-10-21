@@ -22,8 +22,8 @@ import threading
 if TYPE_CHECKING:
     from dimos.robot.robot import Robot, MockRobot
 else:
-    Robot = 'Robot'
-    MockRobot = 'MockRobot'
+    Robot = "Robot"
+    MockRobot = "MockRobot"
 
 from dimos.skills.skills import AbstractRobotSkill, AbstractSkill, SkillLibrary
 from dimos.types.constants import Colors
@@ -31,132 +31,25 @@ from inspect import signature, Parameter
 from typing import Callable, Any, get_type_hints
 
 # Module-level constant for Unitree ROS control definitions
-UNITREE_ROS_CONTROLS: List[Tuple[str, int, str]] = [
-    ("Damp", 1001,
-     "Lowers the robot to the ground fully."
-    ),
-    ("BalanceStand", 1002,
-     "Activates a mode that maintains the robot in a balanced standing position."
-    ),
-    ("StandUp", 1004,
-     "Commands the robot to transition from a sitting or prone position to a standing posture."
-    ),
-    ("StandDown", 1005,
-     "Instructs the robot to move from a standing position to a sitting or prone posture."
-    ),
-    ("RecoveryStand", 1006,
-     "Recovers the robot to a state from which it can take more commands. Useful to run after multiple dynamic commands like front flips."
-    ),
-    ("Euler", 1007,
-     "Adjusts the robot's orientation using Euler angles, providing precise control over its rotation."
-    ),
-    # ("Move", 1008, "Move the robot using velocity commands."),  # Intentionally omitted
-    ("Sit", 1009,
-     "Commands the robot to sit down from a standing or moving stance."),
-    ("RiseSit", 1010,
-     "Commands the robot to rise back to a standing position from a sitting posture."
-    ),
-    ("SwitchGait", 1011,
-     "Switches the robot's walking pattern or style dynamically, suitable for different terrains or speeds."
-    ),
-    ("Trigger", 1012,
-     "Triggers a specific action or custom routine programmed into the robot."),
-    ("BodyHeight", 1013,
-     "Adjusts the height of the robot's body from the ground, useful for navigating various obstacles."
-    ),
-    ("FootRaiseHeight", 1014,
-     "Controls how high the robot lifts its feet during movement, which can be adjusted for different surfaces."
-    ),
-    ("SpeedLevel", 1015,
-     "Sets or adjusts the speed at which the robot moves, with various levels available for different operational needs."
-    ),
-    ("Hello", 1016,
-     "Performs a greeting action, which could involve a wave or other friendly gesture."
-    ),
-    ("Stretch", 1017,
-     "Engages the robot in a stretching routine."
-    ),
-    ("TrajectoryFollow", 1018,
-     "Directs the robot to follow a predefined trajectory, which could involve complex paths or maneuvers."
-    ),
-    ("ContinuousGait", 1019,
-     "Enables a mode for continuous walking or running, ideal for long-distance travel."
-    ),
-    ("Content", 1020,
-     "To display or trigger when the robot is happy."
-    ),
-    ("Wallow", 1021,
-     "The robot falls onto its back and rolls around."
-    ),
-    ("Dance1", 1022,
-     "Performs a predefined dance routine 1, programmed for entertainment or demonstration."
-    ),
-    ("Dance2", 1023,
-     "Performs another variant of a predefined dance routine 2."),
-    ("GetBodyHeight", 1024,
-     "Retrieves the current height of the robot's body from the ground."),
-    ("GetFootRaiseHeight", 1025,
-     "Retrieves the current height at which the robot's feet are being raised during movement."
-    ),
-    ("GetSpeedLevel", 1026,
-     "Returns the current speed level at which the robot is operating."),
-    ("SwitchJoystick", 1027,
-     "Toggles the control mode to joystick input, allowing for manual direction of the robot's movements."
-    ),
-    ("Pose", 1028,
-     "Directs the robot to take a specific pose or stance, which could be used for tasks or performances."
-    ),
-    ("Scrape", 1029,
-     "Robot falls to its hind legs and makes scraping motions with its front legs."
-    ),
-    ("FrontFlip", 1030,
-     "Executes a front flip, a complex and dynamic maneuver."
-    ),
-    ("FrontJump", 1031,
-     "Commands the robot to perform a forward jump."
-    ),
-    ("FrontPounce", 1032,
-     "Initiates a pouncing movement forward, mimicking animal-like pouncing behavior."
-    ),
-    ("WiggleHips", 1033,
-     "Causes the robot to wiggle its hips."
-    ),
-    ("GetState", 1034,
-     "Retrieves the current operational state of the robot, including status reports or diagnostic information."
-    ),
-    ("EconomicGait", 1035,
-     "Engages a more energy-efficient walking or running mode to conserve battery life."
-    ),
-    ("FingerHeart", 1036,
-     "Performs a finger heart gesture while on its hind legs."
-    ),
-    ("Handstand", 1301,
-     "Commands the robot to perform a handstand, demonstrating balance and control."
-    ),
-    ("CrossStep", 1302,
-     "Engages the robot in a cross-stepping routine, useful for complex locomotion or dance moves."
-    ),
-    ("OnesidedStep", 1303,
-     "Commands the robot to perform a stepping motion that predominantly uses one side."
-    ),
-    ("Bound", 1304,
-     "Initiates a bounding motion, similar to a light, repetitive hopping or leaping."
-    ),
-    ("LeadFollow", 1045,
-     "Engages follow-the-leader behavior, where the robot follows a designated leader or follows a signal."
-    ),
-    ("LeftFlip", 1042,
-     "Executes a flip towards the left side."
-    ),
-    ("RightFlip", 1043,
-     "Performs a flip towards the right side."
-    ),
-    ("Backflip", 1044,
-     "Executes a backflip, a complex and dynamic maneuver."
-    )
-]
+# TEMPORARY: Reduced skill set for Ollama testing (Issue #12)
+# Full list commented out due to qwen2.5-coder:7b having issues with 47 tools  
+# Uncomment when switching to llama.cpp or vLLM
+# Only using class-based nav2 skills: Move, Reverse, SpinLeft, SpinRight, Wait
+UNITREE_ROS_CONTROLS: List[Tuple[str, int, str]] = []
+
+# FULL LIST (commented out for Ollama testing):
+# [
+#     ("Damp", 1001, "Lowers the robot to the ground fully."),
+#     ("BalanceStand", 1002, "Maintains balanced standing position."),
+#     ("StandUp", 1004, "Transition from sitting to standing."),
+#     ("StandDown", 1005, "Move from standing to sitting."),
+#     ("Sit", 1009, "Sit down from standing."),
+#     ("RiseSit", 1010, "Rise from sitting to standing."),
+#     ... and 41 more skills ...
+# ]
 
 # region MyUnitreeSkills
+
 
 class MyUnitreeSkills(SkillLibrary):
     """My Unitree Skills."""
@@ -164,9 +57,11 @@ class MyUnitreeSkills(SkillLibrary):
     _robot: Optional[Robot] = None
 
     @classmethod
-    def register_skills(cls, skill_classes: Union['AbstractSkill', list['AbstractSkill']]):
+    def register_skills(
+        cls, skill_classes: Union["AbstractSkill", list["AbstractSkill"]]
+    ):
         """Add multiple skill classes as class attributes.
-        
+
         Args:
             skill_classes: List of skill classes to add
         """
@@ -193,9 +88,11 @@ class MyUnitreeSkills(SkillLibrary):
 
         # Provide the robot instance to each skill
         for skill_class in self:
-            print(f"{Colors.GREEN_PRINT_COLOR}Creating instance for skill: {skill_class}{Colors.RESET_COLOR}")
+            print(
+                f"{Colors.GREEN_PRINT_COLOR}Creating instance for skill: {skill_class}{Colors.RESET_COLOR}"
+            )
             self.create_instance(skill_class.__name__, robot=self._robot)
-        
+
         # Refresh the class skills
         self.refresh_class_skills()
 
@@ -214,7 +111,8 @@ class MyUnitreeSkills(SkillLibrary):
                     raise RuntimeError(
                         f"{Colors.RED_PRINT_COLOR}"
                         f"No App ID provided to {self.__class__.__name__} Skill"
-                        f"{Colors.RESET_COLOR}")
+                        f"{Colors.RESET_COLOR}"
+                    )
                 else:
                     self._robot.webrtc_req(api_id=self._app_id)
                     string = f"{Colors.GREEN_PRINT_COLOR}{self.__class__.__name__} was successful: id={self._app_id}{Colors.RESET_COLOR}"
@@ -226,40 +124,50 @@ class MyUnitreeSkills(SkillLibrary):
             skill_class = type(
                 name,  # Name of the class
                 (BaseUnitreeSkill,),  # Base classes
-                {
-                    '__doc__': description,
-                    '_app_id': app_id
-                })
+                {"__doc__": description, "_app_id": app_id},
+            )
             skills_classes.append(skill_class)
 
         return skills_classes
 
     # region Class-based Skills
-    
+
     class Move(AbstractRobotSkill):
         """Move the robot using direct velocity commands."""
 
         x: float = Field(..., description="Forward velocity (m/s).")
         y: float = Field(default=0.0, description="Left/right velocity (m/s)")
         yaw: float = Field(default=0.0, description="Rotational velocity (rad/s)")
-        duration: float = Field(default=0.0, description="How long to move (seconds). If 0, command is continuous")
+        duration: float = Field(
+            default=0.0,
+            description="How long to move (seconds). If 0, command is continuous",
+        )
 
         def __call__(self):
             super().__call__()
-            return self._robot.move_vel(x=self.x, y=self.y, yaw=self.yaw, duration=self.duration)
+            return self._robot.move_vel(
+                x=self.x, y=self.y, yaw=self.yaw, duration=self.duration
+            )
 
     class Reverse(AbstractRobotSkill):
         """Reverse the robot using direct velocity commands."""
 
-        x: float = Field(..., description="Backward velocity (m/s). Positive values move backward.")
+        x: float = Field(
+            ..., description="Backward velocity (m/s). Positive values move backward."
+        )
         y: float = Field(default=0.0, description="Left/right velocity (m/s)")
         yaw: float = Field(default=0.0, description="Rotational velocity (rad/s)")
-        duration: float = Field(default=0.0, description="How long to move (seconds). If 0, command is continuous")
+        duration: float = Field(
+            default=0.0,
+            description="How long to move (seconds). If 0, command is continuous",
+        )
 
         def __call__(self):
             super().__call__()
             # Use move_vel with negative x for backward movement
-            return self._robot.move_vel(x=-self.x, y=self.y, yaw=self.yaw, duration=self.duration)
+            return self._robot.move_vel(
+                x=-self.x, y=self.y, yaw=self.yaw, duration=self.duration
+            )
 
     class SpinLeft(AbstractRobotSkill):
         """Spin the robot left using degree commands."""
@@ -268,7 +176,9 @@ class MyUnitreeSkills(SkillLibrary):
 
         def __call__(self):
             super().__call__()
-            return self._robot.spin(degrees=self.degrees)  # Spinning left is positive degrees
+            return self._robot.spin(
+                degrees=self.degrees
+            )  # Spinning left is positive degrees
 
     class SpinRight(AbstractRobotSkill):
         """Spin the robot right using degree commands."""
@@ -277,7 +187,9 @@ class MyUnitreeSkills(SkillLibrary):
 
         def __call__(self):
             super().__call__()
-            return self._robot.spin(degrees=-self.degrees)  # Spinning right is negative degrees
+            return self._robot.spin(
+                degrees=-self.degrees
+            )  # Spinning right is negative degrees
 
     class Wait(AbstractSkill):
         """Wait for a specified amount of time."""
@@ -285,5 +197,5 @@ class MyUnitreeSkills(SkillLibrary):
         seconds: float = Field(..., description="Seconds to wait")
 
         def __call__(self):
-            time.sleep(self.seconds)            
+            time.sleep(self.seconds)
             return f"Wait completed with length={self.seconds}s"
