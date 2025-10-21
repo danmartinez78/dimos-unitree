@@ -71,7 +71,8 @@ class Robot(ABC):
                  skill_library: SkillLibrary = None,
                  spatial_memory_dir: str = None,
                  spatial_memory_collection: str = "spatial_memory",
-                 new_memory: bool = False,):
+                 new_memory: bool = False,
+                 namespace: str = ""):
         """Initialize a Robot instance.
         
         Args:
@@ -83,6 +84,7 @@ class Robot(ABC):
             spatial_memory_dir: Directory for storing spatial memory data. If None, uses output_dir/spatial_memory.
             spatial_memory_collection: Name of the collection in the ChromaDB database.
             new_memory: If True, creates a new spatial memory from scratch. Defaults to False.
+            namespace: Optional ROS namespace for topics and frames. Defaults to "".
         """
         self.hardware_interface = hardware_interface
         self.ros_control = ros_control
@@ -90,6 +92,9 @@ class Robot(ABC):
         self.disposables = CompositeDisposable()
         self.pool_scheduler = pool_scheduler if pool_scheduler else get_scheduler()
         self.skill_library = skill_library if skill_library else SkillLibrary()
+        
+        # Store namespace, stripping any trailing slashes
+        self.namespace = namespace.rstrip("/") if namespace else ""
 
         # Create output directory if it doesn't exist
         os.makedirs(self.output_dir, exist_ok=True)
@@ -121,7 +126,7 @@ class Robot(ABC):
             
             # Define transform provider
             def transform_provider():
-                position, rotation = self.ros_control.transform_euler("base_link")
+                position, rotation = self.ros_control.transform_euler("base_link", frame_namespace=self.namespace)
                 if position is None or rotation is None:
                     return {
                         "position": None,
