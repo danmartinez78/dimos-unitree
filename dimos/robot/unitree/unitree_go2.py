@@ -61,6 +61,7 @@ class UnitreeGo2(Robot):
         spatial_memory_dir: str = None,
         spatial_memory_collection: str = "spatial_memory",
         new_memory: bool = False,
+        namespace: str = "",
     ):
         """Initialize the UnitreeGo2 robot.
 
@@ -78,6 +79,7 @@ class UnitreeGo2(Robot):
             spatial_memory_dir: Directory for storing spatial memory data. If None, uses output_dir/spatial_memory.
             spatial_memory_collection: Name of the collection in the ChromaDB database.
             new_memory: If True, creates a new spatial memory from scratch.
+            namespace: Optional ROS namespace for topics and frames (e.g., "robot0"). Defaults to "".
         """
         print(f"Initializing UnitreeGo2 with use_ros: {use_ros} and use_webrtc: {use_webrtc}")
         if not (use_ros ^ use_webrtc):  # XOR operator ensures exactly one is True
@@ -100,6 +102,7 @@ class UnitreeGo2(Robot):
             spatial_memory_dir=spatial_memory_dir,
             spatial_memory_collection=spatial_memory_collection,
             new_memory=new_memory,
+            namespace=namespace,
         )
 
         if self.skill_library is not None:
@@ -163,8 +166,10 @@ class UnitreeGo2(Robot):
             self.object_tracking_stream = object_tracking_stream
 
         # Initialize the local planner and create BEV visualization stream
+        # Apply namespace to topic subscriptions
+        local_costmap_topic = f"{self.namespace}/local_costmap/costmap".lstrip("/")
         self.local_planner = VFHPurePursuitPlanner(
-            get_costmap=self.ros_control.topic_latest("/local_costmap/costmap", Costmap),
+            get_costmap=self.ros_control.topic_latest(local_costmap_topic, Costmap),
             transform=self.ros_control,
             move_vel_control=self.ros_control.move_vel_control,
             robot_width=0.36,  # Unitree Go2 width in meters
@@ -174,11 +179,12 @@ class UnitreeGo2(Robot):
             visualization_size=500,  # 500x500 pixel visualization
         )
 
+        map_topic = f"{self.namespace}/map".lstrip("/")
         self.global_planner = AstarPlanner(
             conservativism=20,  # how close to obstacles robot is allowed to path plan
             set_local_nav=lambda path, stop_event=None, goal_theta=None: navigate_path_local(self, path, timeout=120.0, goal_theta=goal_theta, stop_event=stop_event),
-            get_costmap=self.ros_control.topic_latest("map", Costmap),
-            get_robot_pos=lambda: self.ros_control.transform_euler_pos("base_link"),
+            get_costmap=self.ros_control.topic_latest(map_topic, Costmap),
+            get_robot_pos=lambda: self.ros_control.transform_euler_pos("base_link", frame_namespace=self.namespace),
         )
 
         # Create the visualization stream at 5Hz
@@ -196,6 +202,6 @@ class UnitreeGo2(Robot):
                 - position: Tuple[float, float, float] (x, y, z)
                 - rotation: Tuple[float, float, float] (roll, pitch, yaw) in radians
         """
-        [position, rotation] = self.ros_control.transform_euler("base_link")
+        [position, rotation] = self.ros_control.transform_euler("base_link", frame_namespace=self.namespace)
 
         return position, rotation
