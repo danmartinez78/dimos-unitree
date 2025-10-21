@@ -53,19 +53,80 @@ class ROSTransformAbility:
 
         return self._tf_buffer
 
-    def transform_euler_pos(self, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_euler_pos(self, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
+        """Get position from transform between frames.
+        
+        Args:
+            source_frame: Source frame name
+            target_frame: Target frame name (default: "map")
+            timeout: Time to wait for transform (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
+            
+        Returns:
+            Vector: Position as a 2D vector
+        """
+        # Apply namespace to frames
+        if frame_namespace:
+            source_frame = f"{frame_namespace}/{source_frame}".lstrip("/")
+            target_frame = f"{frame_namespace}/{target_frame}".lstrip("/")
         return to_euler_pos(self.transform(source_frame, target_frame, timeout))
 
-    def transform_euler_rot(self, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_euler_rot(self, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
+        """Get rotation from transform between frames.
+        
+        Args:
+            source_frame: Source frame name
+            target_frame: Target frame name (default: "map")
+            timeout: Time to wait for transform (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
+            
+        Returns:
+            Vector: Rotation as Euler angles (x, y, z) in radians
+        """
+        # Apply namespace to frames
+        if frame_namespace:
+            source_frame = f"{frame_namespace}/{source_frame}".lstrip("/")
+            target_frame = f"{frame_namespace}/{target_frame}".lstrip("/")
         return to_euler_rot(self.transform(source_frame, target_frame, timeout))
 
-    def transform_euler(self, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_euler(self, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
+        """Get position and rotation from transform between frames.
+        
+        Args:
+            source_frame: Source frame name
+            target_frame: Target frame name (default: "map")
+            timeout: Time to wait for transform (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
+            
+        Returns:
+            List[Vector, Vector]: Position and rotation as vectors
+        """
+        # Apply namespace to frames
+        if frame_namespace:
+            source_frame = f"{frame_namespace}/{source_frame}".lstrip("/")
+            target_frame = f"{frame_namespace}/{target_frame}".lstrip("/")
         res = self.transform(source_frame, target_frame, timeout)
         return to_euler(res)
 
     def transform(
-        self, source_frame: str, target_frame: str = "map", timeout: float = 1.0
+        self, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""
     ) -> Optional[TransformStamped]:
+        """Get transform between two frames.
+        
+        Args:
+            source_frame: Source frame name
+            target_frame: Target frame name (default: "map")
+            timeout: Time to wait for transform (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
+            
+        Returns:
+            Optional[TransformStamped]: Transform between frames, or None if lookup fails
+        """
+        # Apply namespace to frames
+        if frame_namespace:
+            source_frame = f"{frame_namespace}/{source_frame}".lstrip("/")
+            target_frame = f"{frame_namespace}/{target_frame}".lstrip("/")
+        
         try:
             transform = self.tf_buffer.lookup_transform(
                 target_frame,
@@ -82,7 +143,7 @@ class ROSTransformAbility:
             logger.error(f"Transform lookup failed: {e}")
             return None
 
-    def transform_point(self, point: Vector, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_point(self, point: Vector, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
         """Transform a point from source_frame to target_frame.
 
         Args:
@@ -90,10 +151,16 @@ class ROSTransformAbility:
             source_frame: The source frame of the point
             target_frame: The target frame to transform to
             timeout: Time to wait for the transform to become available (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
 
         Returns:
             The transformed point as a Vector, or None if the transform failed
         """
+        # Apply namespace to frames
+        if frame_namespace:
+            source_frame = f"{frame_namespace}/{source_frame}".lstrip("/")
+            target_frame = f"{frame_namespace}/{target_frame}".lstrip("/")
+        
         try:
             # Wait for transform to become available
             self.tf_buffer.can_transform(
@@ -122,7 +189,7 @@ class ROSTransformAbility:
         
     
 
-    def transform_path(self, path: Path, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_path(self, path: Path, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
         """Transform a path from source_frame to target_frame.
 
         Args:
@@ -130,18 +197,19 @@ class ROSTransformAbility:
             source_frame: The source frame of the path
             target_frame: The target frame to transform to
             timeout: Time to wait for the transform to become available (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
 
         Returns:
             The transformed path as a Path, or None if the transform failed
         """
         transformed_path = Path()
         for point in path:
-            transformed_point = self.transform_point(point, source_frame, target_frame, timeout)
+            transformed_point = self.transform_point(point, source_frame, target_frame, timeout, frame_namespace)
             if transformed_point is not None:
                 transformed_path.append(transformed_point)
         return transformed_path
 
-    def transform_rot(self, rotation: Vector, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_rot(self, rotation: Vector, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
         """Transform a rotation from source_frame to target_frame.
 
         Args:
@@ -149,10 +217,16 @@ class ROSTransformAbility:
             source_frame: The source frame of the rotation
             target_frame: The target frame to transform to
             timeout: Time to wait for the transform to become available (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
 
         Returns:
             The transformed rotation as a Vector of Euler angles (x, y, z), or None if the transform failed
         """
+        # Apply namespace to frames
+        if frame_namespace:
+            source_frame = f"{frame_namespace}/{source_frame}".lstrip("/")
+            target_frame = f"{frame_namespace}/{target_frame}".lstrip("/")
+        
         try:
             # Wait for transform to become available
             self.tf_buffer.can_transform(
@@ -162,7 +236,7 @@ class ROSTransformAbility:
             # Create a rotation matrix from the input Euler angles
             input_rotation = R.from_euler('xyz', rotation, degrees=False)
             
-            # Get the transform from source to target frame
+            # Get the transform from source to target frame (without namespace since already applied)
             transform = self.transform(source_frame, target_frame, timeout)
             if transform is None:
                 return None
@@ -185,7 +259,7 @@ class ROSTransformAbility:
             logger.error(f"Transform rotation from {source_frame} to {target_frame} failed: {e}")
             return None
 
-    def transform_pose(self, position: Vector, rotation: Vector, source_frame: str, target_frame: str = "map", timeout: float = 1.0):
+    def transform_pose(self, position: Vector, rotation: Vector, source_frame: str, target_frame: str = "map", timeout: float = 1.0, frame_namespace: str = ""):
         """Transform a pose from source_frame to target_frame.
 
         Args:
@@ -194,16 +268,17 @@ class ROSTransformAbility:
             source_frame: The source frame of the pose
             target_frame: The target frame to transform to
             timeout: Time to wait for the transform to become available (seconds)
+            frame_namespace: Optional namespace prefix for frames (default: "")
 
         Returns:
             Tuple of (transformed_position, transformed_rotation) as Vectors, 
             or (None, None) if either transform failed
         """
         # Transform position
-        transformed_position = self.transform_point(position, source_frame, target_frame, timeout)
+        transformed_position = self.transform_point(position, source_frame, target_frame, timeout, frame_namespace)
         
         # Transform rotation
-        transformed_rotation = self.transform_rot(rotation, source_frame, target_frame, timeout)
+        transformed_rotation = self.transform_rot(rotation, source_frame, target_frame, timeout, frame_namespace)
         
         # Return results (both might be None if transforms failed)
         return transformed_position, transformed_rotation
